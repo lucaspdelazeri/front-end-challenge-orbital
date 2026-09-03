@@ -1,0 +1,257 @@
+@use '../../styles/breakpoints' as bp;
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  /* se o diálogo não couber na altura da tela, a rolagem é do fundo */
+  overflow-y: auto;
+  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
+  backdrop-filter: blur(3px);
+
+  @include bp.below(bp.$mobile) {
+    padding: 12px;
+  }
+}
+
+.dialog {
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  width: 100%;
+  max-width: 600px;
+  box-sizing: border-box;
+  padding: 26px 28px 28px;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-lg);
+
+  @include bp.below(bp.$mobile) {
+    gap: 18px;
+    padding: 18px 16px 20px;
+  }
+}
+
+.header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.identity {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.number {
+  font-size: 12px;
+  letter-spacing: 0.14em;
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}
+
+.name {
+  margin: 0;
+  font-size: 28px;
+  letter-spacing: -0.02em;
+  text-transform: capitalize;
+
+  @include bp.below(bp.$mobile) {
+    font-size: 23px;
+  }
+}
+
+.types {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 2px;
+}
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 10px;
+  font-size: 11px;
+  letter-spacing: 0.02em;
+  border-radius: calc(var(--radius-md) * 0.75);
+  /* um degrau acima da superfície do diálogo, para a pílula se destacar */
+  background: var(--color-neutral-800);
+  color: var(--color-neutral-100);
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.iconButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  padding: 0;
+  border: 1px solid transparent;
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-accent);
+  cursor: pointer;
+
+  &:hover {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+
+  &:active {
+    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+
+  /* alvo de toque confortável no dedo */
+  @include bp.below(bp.$mobile) {
+    width: 42px;
+    height: 42px;
+  }
+}
+
+.buttonIcon {
+  width: 18px;
+  height: 18px;
+}
+
+.body {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 26px;
+  align-items: start;
+
+  /* o design assume desktop; numa tela estreita as duas colunas viram uma */
+  @include bp.below(bp.$mobile) {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+}
+
+.media {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.spriteBox {
+  display: grid;
+  place-items: center;
+  width: 100%;
+  aspect-ratio: 1;
+  padding: 12px;
+  box-sizing: border-box;
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+
+  /* em coluna única a caixa quadrada tomaria a tela inteira */
+  @include bp.below(bp.$mobile) {
+    max-width: 240px;
+    margin-inline: auto;
+  }
+}
+
+.sprite {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.measures {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.measure {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.measureLabel {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-neutral-400);
+}
+
+.measureValue {
+  font-size: 15px;
+  font-variant-numeric: tabular-nums;
+}
+
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.statsTitle {
+  font-size: 11px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--color-neutral-400);
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.statRow {
+  display: flex;
+  justify-content: space-between;
+  font-size: 13px;
+}
+
+.statLabel {
+  color: var(--color-neutral-300);
+}
+
+.statValue {
+  font-variant-numeric: tabular-nums;
+}
+
+.track {
+  height: 4px;
+  border-radius: 999px;
+  background: var(--color-neutral-700);
+}
+
+.bar {
+  height: 4px;
+  max-width: 100%;
+  border-radius: 999px;
+  background: var(--color-accent);
+}
+
+.total {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 10px;
+  font-size: 13px;
+  border-top: 1px solid var(--color-divider);
+}
+
+.totalLabel {
+  color: var(--color-neutral-400);
+}
+
+.totalValue {
+  color: var(--color-accent);
+  font-variant-numeric: tabular-nums;
+}

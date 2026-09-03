@@ -1,0 +1,81 @@
+@use '../styles/breakpoints' as bp;
+
+.container {
+  position: relative;
+  width: 100%;
+  max-width: 380px;
+}
+
+.icon {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 17px;
+  height: 17px;
+  color: var(--color-neutral-500);
+  pointer-events: none;
+}
+
+.input {
+  width: 100%;
+  box-sizing: border-box;
+  height: 40px;
+  padding: 6px 32px 6px 37px;
+  font: inherit;
+  font-size: 14px;
+  color: var(--color-text);
+  caret-color: var(--color-accent);
+  background: var(--color-surface);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-md);
+
+  &::placeholder {
+    color: var(--color-neutral-500);
+  }
+
+  &:hover {
+    border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  }
+
+  &:focus-visible {
+    border-color: var(--color-accent);
+    outline: 2px solid var(--color-accent);
+    outline-offset: 0;
+  }
+
+  &::-webkit-search-cancel-button {
+    display: none;
+  }
+
+  /* abaixo de 16px o iOS dá zoom no campo ao focar */
+  @include bp.below(bp.$mobile) {
+    height: 44px;
+    font-size: 16px;
+  }
+}
+
+.clearButton {
+  position: absolute;
+  right: 8px;
+  top: 50%;
+  transform: translateY(-50%);
+  display: flex;
+  align-items: center;
+  padding: 4px;
+  background: transparent;
+  border: 0;
+  border-radius: var(--radius-sm);
+  color: var(--color-neutral-500);
+  cursor: pointer;
+  line-height: 1;
+
+  &:hover {
+    color: var(--color-text);
+  }
+}
+
+.clearIcon {
+  width: 15px;
+  height: 15px;
+}

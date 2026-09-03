@@ -1,0 +1,85 @@
+// Tokens do projeto: cinza neutro escuro, texto quase branco e um âmbar como
+// cor de destaque.
+//
+// Os valores moram em variáveis e mapas do Sass, mas são emitidos como custom
+// properties: os componentes precisam lê-los em tempo de execução, porque os
+// color-mix() espalhados por eles trabalham sobre esses tokens.
+
+@use 'sass:map';
+
+$bg: #212121;
+$surface: #2c2c2c;
+$text: #f5f5f5;
+$accent: #f0b505;
+$ink: #000;
+
+// Rampas geradas num único eixo de luminosidade, para que o mesmo degrau de
+// uma role case em valor visual com o da outra.
+$neutral: (
+  100: #f7f7f7,
+  200: #e8e8e8,
+  300: #d4d4d4,
+  400: #b5b5b5,
+  500: #949494,
+  600: #757575,
+  700: #575757,
+  800: #3b3b3b,
+  900: #141414,
+);
+
+$accents: (
+  100: #fefaeb,
+  200: #fdf0c9,
+  300: #fbe193,
+  400: #f9cd48,
+  500: $accent,
+  600: #c59507,
+  700: #987306,
+  800: #6b5106,
+  900: #3e3004,
+);
+
+:root {
+  /* — cores base — */
+  --color-bg: #{$bg};
+  --color-surface: #{$surface};
+  --color-text: #{$text};
+  --color-accent: #{$accent};
+  --color-divider: #{rgba($text, 0.16)};
+
+  /* — rampa neutra — */
+  @each $step, $tone in $neutral {
+    --color-neutral-#{$step}: #{$tone};
+  }
+
+  /* — rampa de destaque — */
+  @each $step, $tone in $accents {
+    --color-accent-#{$step}: #{$tone};
+  }
+
+  /* — tipografia — */
+  --font-heading: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
+  --font-heading-weight: 500;
+  --font-body: 'Montserrat Variable', 'Montserrat', system-ui, sans-serif;
+
+  /* — espaçamento — */
+  --space-1: 2.8px;
+  --space-2: 5.6px;
+  --space-3: 8.4px;
+  --space-4: 11.2px;
+  --space-6: 16.8px;
+  --space-8: 22.4px;
+
+  /* — raio — */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 14px;
+
+  /* — elevação: em fundo escuro, um fio de contorno mais claro que a
+     superfície, mais a escuridão ambiente — */
+  --shadow-sm: 0 0 0 1px #{map.get($neutral, 800)};
+  --shadow-md:
+    0 0 0 1px #{map.get($neutral, 700)}, 0 6px 18px #{rgba($ink, 0.55)};
+  --shadow-lg:
+    0 0 0 1px #{map.get($neutral, 500)}, 0 16px 40px #{rgba($ink, 0.65)};
+}

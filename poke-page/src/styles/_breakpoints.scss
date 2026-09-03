@@ -1,0 +1,10 @@
+// Pontos de quebra do layout, num lugar só: enquanto o valor viver dentro da
+// media query de um componente, o próximo componente vai escolher outro.
+
+$mobile: 560px;
+
+@mixin below($width) {
+  @media (max-width: $width) {
+    @content;
+  }
+}
