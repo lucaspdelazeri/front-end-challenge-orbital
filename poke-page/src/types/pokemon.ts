@@ -8,8 +8,6 @@ export type Pokemon = {
   sprites: {
     front_default: string | null;
     other: {
-      /* a arte "home" é a que o design usa: fundo transparente e enquadramento
-         igual em toda a série, o que mantém os cards alinhados entre si */
       home: { front_default: string | null };
     };
   };

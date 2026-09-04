@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import OrbitalIcon from "./assets/icons/orbital-rounded.png";
+import OrbitalIcon from "./assets/icons/orbital-icon.svg";
 import PokemonCard from "./components/PokemonCard/PokemonCard";
 import PokemonModal from "./components/PokemonModal/PokemonModal";
 
