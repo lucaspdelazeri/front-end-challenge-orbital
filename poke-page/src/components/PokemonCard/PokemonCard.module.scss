@@ -7,47 +7,60 @@
   justify-content: center;
   gap: 6px;
   width: 100%;
-  height: 178px;
-  padding: 12px;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
+  height: 214px;
+  padding: 16px 16px 14px;
+  /* um degrau acima do fundo da página: o suficiente para o card se destacar
+     como superfície, sem virar um bloco claro no meio da tela escura */
   background: var(--color-surface);
+  border: 1px solid var(--color-neutral-800);
+  border-radius: var(--radius-md);
+  box-shadow: 0 4px 14px rgb(0 0 0 / 0.28);
   cursor: pointer;
   transition:
     border-color 0.15s ease,
-    background 0.15s ease;
+    background 0.15s ease,
+    box-shadow 0.15s ease;
   font: inherit;
   color: inherit;
   text-align: center;
 
   &:hover {
-    border-color: var(--color-accent-700);
+    border-color: color-mix(in srgb, var(--color-accent) 50%, transparent);
+    box-shadow: 0 8px 22px rgb(0 0 0 / 0.4);
   }
 
   @include bp.below(bp.$mobile) {
-    height: 158px;
-    padding: 10px;
+    height: 186px;
+    padding: 12px;
   }
 }
 
 .selected {
+  /* o selecionado sobe mais um fio, para o estado ler mesmo sem a cor */
+  background: color-mix(in srgb, var(--color-surface) 92%, #fff);
   border-color: var(--color-accent);
+  /* o halo fino repete a cor da borda por fora, sem engrossá-la */
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--color-accent) 12%, transparent),
+    0 10px 26px rgb(0 0 0 / 0.45);
 }
 
 .sprite {
-  width: 92px;
-  height: 92px;
+  width: 124px;
+  height: 124px;
   object-fit: contain;
+  /* a sombra acompanha o recorte da arte, não a caixa da imagem */
+  filter: drop-shadow(0 10px 16px rgb(0 0 0 / 0.5));
 
   @include bp.below(bp.$mobile) {
-    width: 82px;
-    height: 82px;
+    width: 104px;
+    height: 104px;
   }
 }
 
 .name {
-  font-size: 12px;
-  letter-spacing: 0.02em;
+  font-size: 13px;
+  letter-spacing: 0.01em;
   color: var(--color-accent);
   text-transform: capitalize;
   visibility: hidden;

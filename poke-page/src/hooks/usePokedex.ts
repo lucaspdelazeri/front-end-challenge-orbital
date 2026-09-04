@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { isAbortError } from "../api/axiosClient";
-import { fetchStarters } from "../api/pokemonApi";
+import { fetchPokedex } from "../api/pokemonApi";
 import type { Pokemon } from "../types/pokemon";
 
-export function usePokemonStarters() {
+export function usePokedex() {
   const [pokemons, setPokemons] = useState<Pokemon[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -11,11 +11,11 @@ export function usePokemonStarters() {
   useEffect(() => {
     const controller = new AbortController();
 
-    fetchStarters(controller.signal)
+    fetchPokedex(controller.signal)
       .then(setPokemons)
       .catch((cause: unknown) => {
         if (isAbortError(cause)) return;
-        setError("Não foi possível carregar os Pokémon.");
+        setError("Could not load the Pokémon.");
       })
       .finally(() => {
         if (!controller.signal.aborted) setIsLoading(false);

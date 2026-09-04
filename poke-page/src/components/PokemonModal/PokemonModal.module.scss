@@ -7,251 +7,380 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: 24px;
-  /* se o diálogo não couber na altura da tela, a rolagem é do fundo */
-  overflow-y: auto;
-  background: color-mix(in srgb, var(--color-neutral-900) 50%, transparent);
-  backdrop-filter: blur(3px);
+  /* o respiro de cima abre espaço para a arte, que sobe para fora do painel */
+  padding: 72px 24px 40px;
+  overflow: auto;
+  background: rgb(0 0 0 / 0.6);
 
   @include bp.below(bp.$mobile) {
-    padding: 12px;
+    padding: 56px 12px 24px;
   }
 }
 
-.dialog {
-  display: flex;
-  flex-direction: column;
-  gap: 22px;
+/* moldura entre o fundo e o painel: é ela que ancora os botões, que no design
+   ficam fora da área colorida */
+.frame {
+  position: relative;
   width: 100%;
-  max-width: 600px;
-  box-sizing: border-box;
-  padding: 26px 28px 28px;
-  border: 1px solid var(--color-divider);
-  border-radius: var(--radius-lg);
-  background: var(--color-surface);
-  box-shadow: var(--shadow-lg);
+  max-width: 1100px;
+  margin: auto;
+  padding: 70px 60px 0;
+
+  @include bp.below(bp.$tablet) {
+    padding: 56px 40px 0;
+  }
 
   @include bp.below(bp.$mobile) {
-    gap: 18px;
-    padding: 18px 16px 20px;
+    padding: 60px 8px 0;
   }
 }
 
-.header {
-  display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: 16px;
+.iconButton {
+  position: absolute;
+  z-index: 2;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: rgb(255 255 255 / 0.8);
+  cursor: pointer;
+
+  &:hover {
+    color: #fff;
+  }
+}
+
+.buttonIcon {
+  width: 30px;
+  height: 30px;
+  /* os ícones nascem no peso regular; o design pede o traço fino */
+  stroke-width: 9;
+}
+
+.close {
+  top: 8px;
+  right: 60px;
+
+  @include bp.below(bp.$tablet) {
+    right: 40px;
+  }
+
+  @include bp.below(bp.$mobile) {
+    right: 8px;
+  }
+}
+
+/* as setas centram na altura do painel, não da moldura: os 70px de respiro do
+   topo entram na conta, e metade deles desloca o eixo para baixo */
+.prev {
+  top: calc(50% + 35px);
+  left: 4px;
+  transform: translateY(-50%);
+}
+
+.next {
+  top: calc(50% + 35px);
+  right: 4px;
+  transform: translateY(-50%);
+}
+
+.panel {
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+  border-radius: var(--radius-md);
+  background: var(--type-color);
+  box-shadow: var(--shadow-lg);
+  /* a cor vem do tipo do Pokémon: trocando de seletor ela precisa derreter de
+     uma para a outra, senão a troca lê como um corte */
+  transition: background-color 0.28s ease;
+}
+
+/* o invólucro é remontado a cada Pokémon — a key muda — então a entrada roda
+   de novo e o conteúdo novo chega por cima em vez de aparecer de repente */
+.content {
+  animation: contentEnter 0.22s ease;
+}
+
+@keyframes contentEnter {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+.top {
+  position: relative;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  align-items: start;
+  gap: 24px;
+  padding: 56px 60px 32px;
+
+  @include bp.below(bp.$tablet) {
+    gap: 16px;
+    padding: 40px 32px 24px;
+  }
+
+  @include bp.below(bp.$mobile) {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 12px;
+    padding: 20px 22px 24px;
+  }
 }
 
 .identity {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
+  color: #fff;
+
+  @include bp.below(bp.$mobile) {
+    order: 2;
+  }
 }
 
 .number {
-  font-size: 12px;
-  letter-spacing: 0.14em;
-  color: var(--color-accent);
+  font-size: 15px;
+  font-weight: 600;
+  opacity: 0.6;
   font-variant-numeric: tabular-nums;
 }
 
 .name {
   margin: 0;
-  font-size: 28px;
+  font-size: 52px;
+  font-weight: 700;
   letter-spacing: -0.02em;
+  line-height: 1.05;
   text-transform: capitalize;
 
+  @include bp.below(bp.$tablet) {
+    font-size: 40px;
+  }
+
   @include bp.below(bp.$mobile) {
-    font-size: 23px;
+    font-size: 34px;
   }
 }
 
-.types {
+.genus {
+  /* reserva a linha enquanto a espécie não chegou, para o bloco não saltar */
+  min-height: 1.55em;
+  font-size: 22px;
+  opacity: 0.72;
+
+  @include bp.below(bp.$tablet) {
+    font-size: 19px;
+  }
+
+  @include bp.below(bp.$mobile) {
+    font-size: 17px;
+  }
+}
+
+.meta {
+  display: flex;
+  gap: 44px;
+  margin: 44px 0 0;
+
+  @include bp.below(bp.$tablet) {
+    gap: 28px;
+    margin-top: 28px;
+  }
+
+  @include bp.below(bp.$mobile) {
+    gap: 22px;
+    margin-top: 22px;
+  }
+}
+
+.metaItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.metaLabel {
+  font-size: 13px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.metaValue {
+  margin: 0;
+  font-size: 15px;
+  opacity: 0.72;
+  font-variant-numeric: tabular-nums;
+}
+
+/* a arte extravasa o topo do painel — por isso nada aqui recorta o overflow.
+   O recuo é a sobra em si: o translateY do componente já encostou o desenho no
+   topo da caixa, então todo Pokémon sai a mesma altura. */
+.hero {
+  justify-self: end;
+  align-self: start;
+  width: 100%;
+  max-width: 380px;
+  aspect-ratio: 1;
+  margin-top: -96px;
+  margin-right: 24px;
+  object-fit: contain;
+  object-position: right top;
+  filter: drop-shadow(0 22px 30px rgb(0 0 0 / 0.28));
+  /* entra por opacidade depois de medida: aparecer já no lugar certo é menos
+     ruidoso do que aparecer torto e saltar */
+  transition: opacity 0.2s ease;
+
+  @include bp.below(bp.$tablet) {
+    max-width: 280px;
+    margin-top: -72px;
+  }
+
+  @include bp.below(bp.$mobile) {
+    order: 1;
+    justify-self: center;
+    max-width: 210px;
+    margin-top: -64px;
+    margin-right: 0;
+  }
+}
+
+.evolutions {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+  padding: 10px 60px 52px;
+
+  @include bp.below(bp.$tablet) {
+    gap: 18px;
+    padding: 8px 32px 36px;
+  }
+
+  @include bp.below(bp.$mobile) {
+    gap: 14px;
+    padding: 4px 22px 28px;
+  }
+}
+
+.evolutionsTitle {
+  margin: 0;
+  font-size: 26px;
+  font-weight: 700;
+  color: #fff;
+
+  @include bp.below(bp.$mobile) {
+    font-size: 21px;
+  }
+}
+
+.chain {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  margin-top: 2px;
-}
-
-.tag {
-  display: inline-flex;
-  align-items: center;
-  padding: 3px 10px;
-  font-size: 11px;
-  letter-spacing: 0.02em;
-  border-radius: calc(var(--radius-md) * 0.75);
-  /* um degrau acima da superfície do diálogo, para a pílula se destacar */
-  background: var(--color-neutral-800);
-  color: var(--color-neutral-100);
-}
-
-.actions {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.iconButton {
-  display: inline-flex;
-  align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  padding: 0;
-  border: 1px solid transparent;
-  border-radius: var(--radius-md);
-  background: transparent;
-  color: var(--color-accent);
+  gap: 18px;
+
+  @include bp.below(bp.$mobile) {
+    gap: 10px;
+  }
+}
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 18px 22px;
+  border: 0;
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.16);
+  font: inherit;
   cursor: pointer;
+  transition: transform 0.15s ease;
 
   &:hover {
-    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+    transform: translateY(-2px);
   }
 
-  &:active {
-    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  /* estágio fora da lista carregada não leva a lugar nenhum: fica visível
+     como parte da cadeia, mas sem se oferecer ao clique */
+  &:disabled {
+    cursor: default;
+    transform: none;
   }
 
-  /* alvo de toque confortável no dedo */
   @include bp.below(bp.$mobile) {
-    width: 42px;
-    height: 42px;
+    padding: 12px 14px;
   }
 }
 
-.buttonIcon {
-  width: 18px;
-  height: 18px;
+.stageCurrent {
+  background: #fdfdfd;
 }
 
-.body {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  gap: 26px;
-  align-items: start;
+/* espaço reservado enquanto a cadeia carrega: mesma caixa, sem convite ao clique */
+.stagePlaceholder {
+  background: rgb(255 255 255 / 0.08);
+  cursor: default;
 
-  /* o design assume desktop; numa tela estreita as duas colunas viram uma */
-  @include bp.below(bp.$mobile) {
-    grid-template-columns: 1fr;
-    gap: 18px;
+  &:hover {
+    transform: none;
   }
 }
 
-.media {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.spriteBox {
-  display: grid;
-  place-items: center;
-  width: 100%;
-  aspect-ratio: 1;
-  padding: 12px;
-  box-sizing: border-box;
-  border: 1px solid var(--color-divider);
-  border-radius: var(--radius-md);
-  background: var(--color-bg);
-
-  /* em coluna única a caixa quadrada tomaria a tela inteira */
-  @include bp.below(bp.$mobile) {
-    max-width: 240px;
-    margin-inline: auto;
-  }
-}
-
-.sprite {
-  width: 100%;
-  height: 100%;
+.stageSprite {
+  /* também serve ao <span> vazio do espaço reservado, que não é imagem */
+  display: block;
+  width: 108px;
+  height: 108px;
   object-fit: contain;
+
+  @include bp.below(bp.$tablet) {
+    width: 92px;
+    height: 92px;
+  }
+
+  @include bp.below(bp.$mobile) {
+    width: 76px;
+    height: 76px;
+  }
 }
 
-.measures {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-}
-
-.measure {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-}
-
-.measureLabel {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-neutral-400);
-}
-
-.measureValue {
-  font-size: 15px;
-  font-variant-numeric: tabular-nums;
-}
-
-.stats {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.statsTitle {
-  font-size: 11px;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--color-neutral-400);
-}
-
-.stat {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.statRow {
-  display: flex;
-  justify-content: space-between;
+/* o nome só aparece no estágio atual; nos outros ele segue ocupando a linha
+   para que todos os cartões da cadeia tenham a mesma altura */
+.stageName {
   font-size: 13px;
+  font-weight: 600;
+  color: var(--type-color);
+  text-transform: capitalize;
+  visibility: hidden;
+
+  .stageCurrent & {
+    visibility: visible;
+  }
 }
 
-.statLabel {
-  color: var(--color-neutral-300);
-}
+/* quem pediu menos movimento recebe as trocas sem animação — a informação é a
+   mesma, só chega direto */
+@media (prefers-reduced-motion: reduce) {
+  .content {
+    animation: none;
+  }
 
-.statValue {
-  font-variant-numeric: tabular-nums;
-}
-
-.track {
-  height: 4px;
-  border-radius: 999px;
-  background: var(--color-neutral-700);
-}
-
-.bar {
-  height: 4px;
-  max-width: 100%;
-  border-radius: 999px;
-  background: var(--color-accent);
-}
-
-.total {
-  display: flex;
-  justify-content: space-between;
-  padding-top: 10px;
-  font-size: 13px;
-  border-top: 1px solid var(--color-divider);
-}
-
-.totalLabel {
-  color: var(--color-neutral-400);
-}
-
-.totalValue {
-  color: var(--color-accent);
-  font-variant-numeric: tabular-nums;
+  .panel,
+  .hero,
+  .stage {
+    transition: none;
+  }
 }

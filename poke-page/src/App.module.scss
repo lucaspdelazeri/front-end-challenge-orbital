@@ -5,15 +5,15 @@
   /* no celular a barra de endereço come parte da 100vh; a dvh acompanha */
   min-height: 100dvh;
   box-sizing: border-box;
-  padding: 56px 24px 72px;
+  padding: 64px 24px 88px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 52px;
 
   @include bp.below(bp.$mobile) {
-    padding: 32px 16px 48px;
-    gap: 28px;
+    padding: 32px 16px 56px;
+    gap: 32px;
   }
 }
 
@@ -28,7 +28,6 @@
   width: 92px;
   height: 92px;
   border-radius: 999px;
-  /* o círculo afunda em relação à página, em vez de subir como os cards */
   background: var(--color-neutral-900);
   display: grid;
   place-items: center;
@@ -40,14 +39,11 @@
 }
 
 .logoIcon {
-  width: 44px;
-  height: 44px;
+  /* preenche o círculo por inteiro; o tamanho vem do .logo, que já tem a
+     própria queda no mobile */
+  width: 100%;
+  height: 100%;
   object-fit: contain;
-
-  @include bp.below(bp.$mobile) {
-    width: 36px;
-    height: 36px;
-  }
 }
 
 .titleGroup {
@@ -81,11 +77,11 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 40px;
+  gap: 32px;
   width: 100%;
 
   @include bp.below(bp.$mobile) {
-    gap: 28px;
+    gap: 24px;
   }
 }
 
@@ -97,11 +93,13 @@
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, 180px);
+  /* o design fecha em 4 colunas de 190px; o auto-fit chega ao mesmo desenho
+     na tela larga e quebra sozinho antes de estourar a horizontal */
+  grid-template-columns: repeat(auto-fit, 190px);
   justify-content: center;
-  gap: 14px;
+  gap: 16px;
   width: 100%;
-  max-width: 610px;
+  max-width: 808px;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -110,7 +108,7 @@
     display: flex;
   }
 
-  /* a coluna fixa de 180px sobra espaço na tela estreita: aqui os cards
+  /* a coluna fixa de 190px sobra espaço na tela estreita: aqui os cards
      dividem a largura disponível, com 140px de piso */
   @include bp.below(bp.$mobile) {
     grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));

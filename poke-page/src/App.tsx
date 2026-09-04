@@ -1,33 +1,35 @@
-import { useState } from "react";
+import { useEffect } from "react";
 
-import PokeballIcon from "./assets/icons/pokeball-pokemon.svg";
+import OrbitalIcon from "./assets/icons/orbital-rounded.png";
 import PokemonCard from "./components/PokemonCard/PokemonCard";
 import PokemonModal from "./components/PokemonModal/PokemonModal";
-import SearchBar from "./components/SearchBar";
 
+import { prefetchPokemonDetails } from "./hooks/usePokemonDetails";
 import { usePokemonSelection } from "./hooks/usePokemonSelection";
-import { usePokemonStarters } from "./hooks/usePokemonStarters";
+import { usePokedex } from "./hooks/usePokedex";
 
 import styles from "./App.module.scss";
 
-import "@fontsource-variable/montserrat";
 
 function App() {
-  const [search, setSearch] = useState("");
-  const { pokemons, isLoading, error } = usePokemonStarters();
+  const { pokemons, isLoading, error } = usePokedex();
   const { selectedId, openPokemon, select, close, step } =
     usePokemonSelection(pokemons);
 
-  const query = search.trim().toLowerCase();
-  const filtered = query
-    ? pokemons.filter((pokemon) => pokemon.name.includes(query))
-    : pokemons;
+  /* Espécie e cadeia são o que falta para abrir um card, e só aparecem ao
+     clicar. Buscá-las assim que a grade existe tira a espera da primeira
+     abertura; em fila, para não disparar tudo de uma vez sobre a API. */
+  useEffect(() => {
+    if (pokemons.length === 0) return;
+
+    void prefetchPokemonDetails(pokemons.map((pokemon) => pokemon.id));
+  }, [pokemons]);
 
   return (
     <div className={styles.container}>
       <header className={styles.header}>
         <div className={styles.logo}>
-          <img className={styles.logoIcon} src={PokeballIcon} alt="" />
+          <img className={styles.logoIcon} src={OrbitalIcon} alt="" />
         </div>
         <div className={styles.titleGroup}>
           <h1 className={styles.title}>Orbital</h1>
@@ -36,28 +38,20 @@ function App() {
       </header>
 
       <main className={styles.main}>
-        <SearchBar value={search} onChange={setSearch} />
-
         <div className={styles.status} role="status" aria-live="polite">
           {error && <span className={styles.emptyState}>{error}</span>}
 
-          {isLoading && <span className={styles.emptyState}>Carregando…</span>}
-
-          {!isLoading && !error && filtered.length === 0 && (
-            <span className={styles.emptyState}>Nenhum Pokémon encontrado.</span>
-          )}
+          {isLoading && <span className={styles.emptyState}>Loading…</span>}
         </div>
 
-        {!isLoading && !error && filtered.length > 0 && (
+        {!isLoading && !error && (
           <ul className={styles.grid}>
-            {filtered.map((pokemon) => (
+            {pokemons.map((pokemon) => (
               <li key={pokemon.id}>
                 <PokemonCard
                   id={pokemon.id}
                   name={pokemon.name}
-                  spriteUrl={
-                    pokemon.sprites.other["official-artwork"].front_default ?? ""
-                  }
+                  spriteUrl={pokemon.sprites.other.home.front_default ?? ""}
                   selected={pokemon.id === selectedId}
                   onSelect={select}
                 />
@@ -70,9 +64,11 @@ function App() {
       {openPokemon && (
         <PokemonModal
           pokemon={openPokemon}
+          selectableIds={pokemons.map((pokemon) => pokemon.id)}
           onClose={close}
           onPrev={() => step(-1)}
           onNext={() => step(1)}
+          onSelectEvolution={select}
         />
       )}
     </div>

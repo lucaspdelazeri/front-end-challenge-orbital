@@ -1,55 +1,34 @@
 import { useEffect } from "react";
+import type { CSSProperties } from "react";
 
 import CaretLeftIcon from "../icons/CaretLeftIcon";
 import CaretRightIcon from "../icons/CaretRightIcon";
 import CloseIcon from "../icons/CloseIcon";
 
 import { useFocusTrap } from "../../hooks/useFocusTrap";
+import { usePokemonDetails } from "../../hooks/usePokemonDetails";
 import { useScrollLock } from "../../hooks/useScrollLock";
+import { useSpriteTopPadding } from "../../hooks/useSpriteTopPadding";
 
 import type { Pokemon } from "../../types/pokemon";
+
+import { typeColor } from "./typeColors";
 
 import styles from "./PokemonModal.module.scss";
 
 type PokemonModalProps = {
   pokemon: Pokemon;
+  /* ids já carregados: só para eles a navegação pela cadeia leva a algum lugar */
+  selectableIds: number[];
   onClose: () => void;
   onPrev: () => void;
   onNext: () => void;
+  onSelectEvolution: (id: number) => void;
 };
 
-const STAT_LABELS: Record<string, string> = {
-  hp: "HP",
-  attack: "Ataque",
-  defense: "Defesa",
-  "special-attack": "Ataque esp.",
-  "special-defense": "Defesa esp.",
-  speed: "Velocidade",
-};
-
-const TYPE_LABELS: Record<string, string> = {
-  normal: "Normal",
-  fire: "Fogo",
-  water: "Água",
-  electric: "Elétrico",
-  grass: "Grama",
-  ice: "Gelo",
-  fighting: "Lutador",
-  poison: "Veneno",
-  ground: "Terra",
-  flying: "Voador",
-  psychic: "Psíquico",
-  bug: "Inseto",
-  rock: "Pedra",
-  ghost: "Fantasma",
-  dragon: "Dragão",
-  dark: "Sombrio",
-  steel: "Aço",
-  fairy: "Fada",
-};
-
-/* as barras usam 160 como régua: é a faixa em que ficam as maiores estatísticas base do jogo. */
-const STAT_SCALE = 160;
+/* três é o tamanho da maioria das cadeias: segura a altura da seção enquanto
+   a resposta não chega, para o painel não crescer embaixo do cursor */
+const PLACEHOLDER_KEYS = ["a", "b", "c"];
 
 function formatDexNumber(id: number) {
   return "#" + String(id).padStart(3, "0");
@@ -57,12 +36,28 @@ function formatDexNumber(id: number) {
 
 /* a API devolve altura em decímetros e peso em hectogramas */
 function formatMeasure(raw: number, unit: string) {
-  return `${(raw / 10).toFixed(1).replace(".", ",")} ${unit}`;
+  return `${(raw / 10).toFixed(1)} ${unit}`;
 }
 
-function PokemonModal({ pokemon, onClose, onPrev, onNext }: PokemonModalProps) {
+/* "solar-power" chega assim da API e vira "Solar Power" */
+function formatAbility(name: string) {
+  return name
+    .split("-")
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(" ");
+}
+
+function PokemonModal({
+  pokemon,
+  selectableIds,
+  onClose,
+  onPrev,
+  onNext,
+  onSelectEvolution,
+}: PokemonModalProps) {
   useScrollLock();
   const dialogRef = useFocusTrap<HTMLDivElement>();
+  const { genus, evolutions, isLoading } = usePokemonDetails(pokemon.id);
 
   useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
@@ -75,116 +70,161 @@ function PokemonModal({ pokemon, onClose, onPrev, onNext }: PokemonModalProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [onClose, onPrev, onNext]);
 
-  const total = pokemon.stats.reduce((sum, stat) => sum + stat.base_stat, 0);
-  const spriteUrl =
-    pokemon.sprites.other["official-artwork"].front_default ?? "";
+  const spriteUrl = pokemon.sprites.other.home.front_default ?? "";
+  const ground = typeColor(pokemon.types[0]?.type.name);
+
+  /* subir a arte pela própria margem transparente encosta o desenho no topo da
+     caixa, e aí o recuo do CSS vale igual para todos */
+  const topPadding = useSpriteTopPadding(spriteUrl);
 
   return (
     <div className={styles.backdrop} onClick={onClose}>
       <div
         ref={dialogRef}
-        className={styles.dialog}
+        className={styles.frame}
         role="dialog"
         aria-modal="true"
         aria-label={pokemon.name}
-        onClick={(event) => event.stopPropagation()}
+        style={{ "--type-color": ground } as CSSProperties}
       >
-        <div className={styles.header}>
-          <div className={styles.identity}>
-            <span className={styles.number}>{formatDexNumber(pokemon.id)}</span>
-            <h2 className={styles.name}>{pokemon.name}</h2>
-            <div className={styles.types}>
-              {pokemon.types.map(({ type }) => (
-                <span key={type.name} className={styles.tag}>
-                  {TYPE_LABELS[type.name] ?? type.name}
+        <button
+          type="button"
+          className={`${styles.iconButton} ${styles.close}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onClose();
+          }}
+          title="Close"
+          aria-label="Close"
+        >
+          <CloseIcon className={styles.buttonIcon} />
+        </button>
+        <button
+          type="button"
+          className={`${styles.iconButton} ${styles.prev}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onPrev();
+          }}
+          title="Previous"
+          aria-label="Previous"
+        >
+          <CaretLeftIcon className={styles.buttonIcon} />
+        </button>
+        <button
+          type="button"
+          className={`${styles.iconButton} ${styles.next}`}
+          onClick={(event) => {
+            event.stopPropagation();
+            onNext();
+          }}
+          title="Next"
+          aria-label="Next"
+        >
+          <CaretRightIcon className={styles.buttonIcon} />
+        </button>
+
+        <div
+          className={styles.panel}
+          onClick={(event) => event.stopPropagation()}
+        >
+          <div className={styles.content} key={pokemon.id}>
+            <div className={styles.top}>
+              <div className={styles.identity}>
+                <span className={styles.number}>
+                  {formatDexNumber(pokemon.id)}
                 </span>
-              ))}
-            </div>
-          </div>
+                <h2 className={styles.name}>{pokemon.name}</h2>
+                <span className={styles.genus}>{genus}</span>
 
-          <div className={styles.actions}>
-            <button
-              type="button"
-              className={styles.iconButton}
-              onClick={onPrev}
-              title="Anterior"
-              aria-label="Anterior"
-            >
-              <CaretLeftIcon className={styles.buttonIcon} />
-            </button>
-            <button
-              type="button"
-              className={styles.iconButton}
-              onClick={onNext}
-              title="Próximo"
-              aria-label="Próximo"
-            >
-              <CaretRightIcon className={styles.buttonIcon} />
-            </button>
-            <button
-              type="button"
-              className={styles.iconButton}
-              onClick={onClose}
-              title="Fechar"
-              aria-label="Fechar"
-            >
-              <CloseIcon className={styles.buttonIcon} />
-            </button>
-          </div>
-        </div>
+                <dl className={styles.meta}>
+                  <div className={styles.metaItem}>
+                    <dt className={styles.metaLabel}>Height</dt>
+                    <dd className={styles.metaValue}>
+                      {formatMeasure(pokemon.height, "m")}
+                    </dd>
+                  </div>
+                  <div className={styles.metaItem}>
+                    <dt className={styles.metaLabel}>Weight</dt>
+                    <dd className={styles.metaValue}>
+                      {formatMeasure(pokemon.weight, "kg")}
+                    </dd>
+                  </div>
+                  <div className={styles.metaItem}>
+                    <dt className={styles.metaLabel}>Abilities</dt>
+                    {pokemon.abilities.map(({ ability }) => (
+                      <dd key={ability.name} className={styles.metaValue}>
+                        {formatAbility(ability.name)}
+                      </dd>
+                    ))}
+                  </div>
+                </dl>
+              </div>
 
-        <div className={styles.body}>
-          <div className={styles.media}>
-            <div className={styles.spriteBox}>
               <img
-                className={styles.sprite}
+                className={
+                  topPadding === null
+                    ? `${styles.hero} ${styles.heroPending}`
+                    : styles.hero
+                }
                 src={spriteUrl}
                 alt={pokemon.name}
+                style={{
+                  transform: topPadding
+                    ? `translateY(${(-topPadding * 100).toFixed(2)}%)`
+                    : undefined,
+                }}
               />
             </div>
 
-            <div className={styles.measures}>
-              <div className={styles.measure}>
-                <span className={styles.measureLabel}>Altura</span>
-                <span className={styles.measureValue}>
-                  {formatMeasure(pokemon.height, "m")}
-                </span>
-              </div>
-              <div className={styles.measure}>
-                <span className={styles.measureLabel}>Peso</span>
-                <span className={styles.measureValue}>
-                  {formatMeasure(pokemon.weight, "kg")}
-                </span>
-              </div>
-            </div>
-          </div>
+            {(isLoading || evolutions.length > 0) && (
+              <div className={styles.evolutions}>
+                <h3 className={styles.evolutionsTitle}>Evolutions</h3>
 
-          <div className={styles.stats}>
-            <span className={styles.statsTitle}>Estatísticas base</span>
+                <div className={styles.chain}>
+                  {isLoading &&
+                    PLACEHOLDER_KEYS.map((key) => (
+                      <span
+                        key={key}
+                        className={`${styles.stage} ${styles.stagePlaceholder}`}
+                        aria-hidden="true"
+                      >
+                        <span className={styles.stageSprite} />
+                        <span className={styles.stageName}>&nbsp;</span>
+                      </span>
+                    ))}
 
-            {pokemon.stats.map(({ stat, base_stat }) => (
-              <div key={stat.name} className={styles.stat}>
-                <div className={styles.statRow}>
-                  <span className={styles.statLabel}>
-                    {STAT_LABELS[stat.name] ?? stat.name}
-                  </span>
-                  <span className={styles.statValue}>{base_stat}</span>
+                  {evolutions.map((stage) => {
+                    const current = stage.id === pokemon.id;
+
+                    return (
+                      <button
+                        key={stage.id}
+                        type="button"
+                        className={
+                          current
+                            ? `${styles.stage} ${styles.stageCurrent}`
+                            : styles.stage
+                        }
+                        title={stage.name}
+                        aria-label={stage.name}
+                        aria-current={current ? "true" : undefined}
+                        disabled={!selectableIds.includes(stage.id)}
+                        onClick={() => onSelectEvolution(stage.id)}
+                      >
+                        <img
+                          className={styles.stageSprite}
+                          src={stage.spriteUrl}
+                          alt=""
+                          loading="lazy"
+                        />
+                        <span className={styles.stageName}>{stage.name}</span>
+                      </button>
+                    );
+                  })}
                 </div>
-                <div className={styles.track}>
-                  <div
-                    className={styles.bar}
-                    style={{
-                      width: `${Math.round((base_stat / STAT_SCALE) * 100)}%`,
-                    }}
-                  />
-                </div>
               </div>
-            ))}
-
-            <div className={styles.total}>
-              <span className={styles.totalLabel}>Total</span>
-              <span className={styles.totalValue}>{total}</span>
-            </div>
+            )}
           </div>
         </div>
       </div>
